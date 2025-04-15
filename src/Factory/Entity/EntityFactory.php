@@ -67,7 +67,6 @@ final class EntityFactory
     {
         $setter = $this->getSetter($property);
         if ($setter === null) {
-            //If Shoptet add new param to the endpoint this cannot stop working (lets process it by magic setter)
             Sdk::getLogger()->notice(
                 sprintf(
                     'Property "%s" of "%s" has been set by magic setter. Please update the "Shoptet API SDK PHP" library.',
@@ -83,6 +82,9 @@ final class EntityFactory
             $this->processNullValueProperty($setter);
         } elseif (is_scalar($value)) {
             $this->processScalarValueProperty($setter, $value);
+        } elseif ($value instanceof ValueObjectInterface) {
+            // 💡 PRE KĽÚČOVÉ OBJEKTY AKO TypeGuid
+            $this->processScalarValueProperty($setter, (string) $value);
         } elseif (is_array($value)) {
             /** @var array<string, mixed> $value */
             $this->processArrayValueProperty($setter, $value);
