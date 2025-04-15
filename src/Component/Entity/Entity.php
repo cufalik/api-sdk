@@ -3,6 +3,7 @@
 namespace Shoptet\Api\Sdk\Php\Component\Entity;
 
 use JsonSerializable;
+use Shoptet\Api\Sdk\Php\Component\ValueObject\ValueObjectInterface;
 use Shoptet\Api\Sdk\Php\Exception\InvalidArgumentException;
 use Shoptet\Api\Sdk\Php\Exception\ReflectionException;
 use Shoptet\Api\Sdk\Php\Factory\Entity\EntityFactory;
@@ -62,7 +63,12 @@ abstract class Entity implements JsonSerializable
         foreach ($reflection->getProperties() as $property) {
             if ($property->isInitialized($this)) {
                 if ($property->getName() !== 'undefinedParams') {
-                    $result[$property->getName()] = $property->getValue($this);
+                    $value = $property->getValue($this);
+                    if ($value instanceof ValueObjectInterface) {
+                        $result[$property->getName()] = (string) $value;
+                    } else {
+                        $result[$property->getName()] = $value;
+                    }
                 } else {
                     /** @var array<string, mixed> $undefinedParams */
                     $undefinedParams = $property->getValue($this);
